@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background-color: #8bc34a;
+    font-family: Arial, sans-serif;
+    touch-action: none;
+}
+
+.game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.dog {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 40px solid #8b4513;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    transition: transform 0.1s ease-out;
+}
+
+.sheep {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+/* Fence styling */
+.fence {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.fence-top, .fence-left, .fence-bottom {
+    position: absolute;
+    background-color: #8b4513;
+}
+
+.fence-top {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+}
+
+.fence-left {
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 100%;
+}
+
+.fence-bottom {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+}
+
+.fence-right {
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 100%;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .dog {
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 30px solid #8b4513;
+    }
+    
+    .sheep {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .fence {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dog {
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 20px solid #8b4513;
+    }
+    
+    .sheep {
+        width: 20px;
+        height: 20px;
+    }
+}
