@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Constants for collision detection
     const SHEEP_WIDTH = 40; // Width of sheep in pixels
-    const MIN_DISTANCE = SHEEP_WIDTH * 1.25; // Minimum distance to maintain between dog and sheep (25% extra space)
+    const MIN_DISTANCE = SHEEP_WIDTH * 1.25; // Minimum distance to maintain between dog and sheep (half sheep width extra space)
     
     // Fence properties
     const fenceThickness = 7;
@@ -28,15 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const insideFenceY = y >= fenceY - radius && y <= fenceY + fenceSize + radius;
         
         if (insideFenceX && insideFenceY) {
-            // Check if point is near any of the three closed sides of the fence (top, left, bottom)
+            // Check if point is near any of the four sides of the fence
             const nearTopSide = y < fenceY + fenceThickness + radius;
             const nearLeftSide = x < fenceX + fenceThickness + radius;
             const nearBottomSide = y > fenceY + fenceSize - fenceThickness - radius;
-            // Right side is open: do NOT check nearRightSide
-            // const nearRightSide = x > fenceX + fenceSize - fenceThickness - radius;
+            const nearRightSide = x > fenceX + fenceSize - fenceThickness - radius;
             
-            // Return true if near any closed side (collision detected)
-            return nearTopSide || nearLeftSide || nearBottomSide;
+            // Return true if near any side (collision detected)
+            return nearTopSide || nearLeftSide || nearBottomSide || nearRightSide;
         }
         
         return false;
@@ -81,10 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let sheepMovementTimer = 0;
     let sheepMovementInterval = Math.random() * 20 + 30; // Random interval for direction changes
     
-    // Variable to control sheep movement after entering enclosure
-    let sheepShouldMove = true;
-    let sheepStopTimeout = null;
-    
     // Calculate distance between dog and sheep
     function getDistanceBetween(x1, y1, x2, y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -92,9 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Move sheep in a more natural way
     function moveSheep() {
-        // If sheep should not move, exit early
-        if (!sheepShouldMove) return;
-        
         // Occasionally change direction to create more natural movement
         sheepMovementTimer++;
         if (sheepMovementTimer > sheepMovementInterval) {
@@ -107,37 +99,47 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if dog is too close to sheep
         const distanceToDog = getDistanceBetween(dogX, dogY, sheepX, sheepY);
         
-        // Calculate speed (make it 30% faster)
-        let sheepSpeed = (window.innerWidth > 768 ? 4 : 2.5) * 1.3;
-        if (distanceToDog < 120) {
-            sheepSpeed *= 1.1; // Slightly faster when dog is close
-        }
+        // Store previous position to revert if collision occurs
+        const prevSheepX = sheepX;
+        const prevSheepY = sheepY;
         
-        // If dog is too close, actively push sheep away
         if (distanceToDog < MIN_DISTANCE) {
+            // Dog is too close, make sheep run away from dog
             // Calculate direction away from dog
             const awayAngle = Math.atan2(sheepY - dogY, sheepX - dogX);
-            // Move sheep away by the overlap amount (so it is pushed, not just teleported)
-            const overlap = MIN_DISTANCE - distanceToDog;
-            sheepX += Math.cos(awayAngle) * overlap;
-            sheepY += Math.sin(awayAngle) * overlap;
-            // Make sheep run away from the dog for a short burst
-            sheepDirection = awayAngle + (Math.random() - 0.5) * 0.5; // Add some randomness
-            // Optional: give a burst of speed
-            sheepX += Math.cos(sheepDirection) * sheepSpeed * 1.5;
-            sheepY += Math.sin(sheepDirection) * sheepSpeed * 1.5;
+            
+            // Move sheep away with increased speed when being chased
+            const pushDistance = 5.0; // Faster movement when being pushed
+            sheepX += Math.cos(awayAngle) * pushDistance;
+            sheepY += Math.sin(awayAngle) * pushDistance;
+            
+            // Update sheep direction to match escape direction
+            sheepDirection = awayAngle;
         } else {
-            // Move sheep in the current direction
-            sheepX += Math.cos(sheepDirection) * sheepSpeed;
-            sheepY += Math.sin(sheepDirection) * sheepSpeed;
+            // Normal movement when dog is not close
+            // Calculate new position with smoother movement
+            const distance = Math.random() * 4.0 + 2.0; // Significantly increased distance for faster movement
+            
+            sheepX += Math.cos(sheepDirection) * distance;
+            sheepY += Math.sin(sheepDirection) * distance;
         }
         
         // Check if new position would collide with fence
         if (checkFenceCollision(sheepX, sheepY, SHEEP_WIDTH / 2)) {
-            sheepX -= Math.cos(sheepDirection) * sheepSpeed;
-            sheepY -= Math.sin(sheepDirection) * sheepSpeed;
+            // Revert to previous position
+            sheepX = prevSheepX;
+            sheepY = prevSheepY;
+            
             // Change direction randomly to avoid getting stuck
             sheepDirection += Math.PI + (Math.random() - 0.5) * 0.5;
+        }
+        
+        // Keep sheep within bounds and change direction when hitting edges
+        if (sheepX < 20 || sheepX > window.innerWidth - 20) {
+            sheepDirection = Math.PI - sheepDirection; // Reverse x direction
+        }
+        if (sheepY < 20 || sheepY > window.innerHeight - 20) {
+            sheepDirection = -sheepDirection; // Reverse y direction
         }
         
         sheepX = Math.max(20, Math.min(window.innerWidth - 20, sheepX));
@@ -148,11 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check for win condition
         if (!window.gameEnded && isSheepInEnclosure()) {
             window.gameEnded = true;
-            // After 4 seconds, stop the sheep
-            if (sheepStopTimeout) clearTimeout(sheepStopTimeout);
-            sheepStopTimeout = setTimeout(() => {
-                sheepShouldMove = false;
-            }, 4000);
             setTimeout(() => {
                 alert("Congratulations!");
             }, 100);
@@ -179,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (distanceToSheep < MIN_DISTANCE) {
             // Calculate direction from sheep to dog
             const angle = Math.atan2(y - sheepY, x - sheepX);
+            
             // Set dog position at minimum distance from sheep
             x = sheepX + Math.cos(angle) * MIN_DISTANCE;
             y = sheepY + Math.sin(angle) * MIN_DISTANCE;

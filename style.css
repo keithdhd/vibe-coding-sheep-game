@@ -6,7 +6,7 @@
 
 body {
     overflow: hidden;
-    background-color: #274405;
+    background-color: #8bc34a;
     font-family: Arial, sans-serif;
     touch-action: none;
 }
@@ -20,25 +20,162 @@ body {
 
 .dog {
     position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-bottom: 40px solid #8b4513;
+    width: 40px;
+    height: 40px;
+    background: none;
     transform: translate(-50%, -50%);
     z-index: 10;
     transition: transform 0.1s ease-out;
+}
+
+.dog-face {
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    width: 20px;
+    height: 18px;
+    background: #a0522d;
+    border-radius: 50% 50% 60% 60%;
+    z-index: 2;
+}
+
+.dog-ear {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    background: #8b4513;
+    border-radius: 60% 60% 80% 80%;
+    top: 2px;
+    z-index: 1;
+}
+
+.dog-ear.left { left: 0px; transform: rotate(-15deg); }
+.dog-ear.right { right: 0px; transform: rotate(15deg); }
+
+.dog-eye {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #222;
+    border-radius: 50%;
+    top: 8px;
+    z-index: 3;
+}
+
+.dog-eye.left { left: 5px; }
+.dog-eye.right { right: 5px; }
+
+.dog-nose {
+    position: absolute;
+    width: 5px;
+    height: 4px;
+    background: #222;
+    border-radius: 60% 60% 80% 80%;
+    left: 7.5px;
+    top: 13px;
+    z-index: 4;
+}
+
+.dog-tail {
+    position: absolute;
+    width: 12px;
+    height: 4px;
+    background: #8b4513;
+    border-radius: 10px 14px 10px 14px;
+    left: -10px;
+    top: 20px;
+    transform: rotate(-30deg);
+    z-index: 0;
 }
 
 .sheep {
     position: absolute;
     width: 40px;
     height: 40px;
-    background-color: white;
+    background: radial-gradient(circle at 60% 40%, #fff 60%, #eaeaea 100%);
     border-radius: 50%;
+    box-shadow: 0 0 0 4px #fff, 0 0 10px 2px #bbb inset;
     transform: translate(-50%, -50%);
     z-index: 5;
+    transition: box-shadow 0.2s;
 }
+
+.sheep::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 5px;
+    width: 26px;
+    height: 23px;
+    background: #fff;
+    border-radius: 50% 50% 60% 60%;
+    z-index: 2;
+    box-shadow: 0 0 0 2px #eaeaea;
+}
+
+.sheep::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 18px;
+    width: 16px;
+    height: 13px;
+    background: #f5e6ce;
+    border-radius: 50% 50% 60% 60%;
+    z-index: 3;
+    box-shadow: 0 2px 4px #e1cfa1 inset;
+}
+
+.sheep-face {
+    position: absolute;
+    left: 12px;
+    top: 18px;
+    width: 16px;
+    height: 13px;
+    background: #f5e6ce;
+    border-radius: 50% 50% 60% 60%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.sheep-eye {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #222;
+    border-radius: 50%;
+    top: 24px;
+    z-index: 4;
+}
+
+.sheep-eye.left { left: 17px; }
+.sheep-eye.right { left: 23px; }
+
+.sheep-ear {
+    position: absolute;
+    width: 7px;
+    height: 10px;
+    background: #f5e6ce;
+    border-radius: 60% 60% 80% 80%;
+    top: 19px;
+    z-index: 1;
+}
+
+.sheep-ear.left { left: 7px; transform: rotate(-20deg); }
+.sheep-ear.right { left: 26px; transform: rotate(20deg); }
+
+.sheep-leg {
+    position: absolute;
+    width: 4px;
+    height: 10px;
+    background: #444;
+    border-radius: 2px;
+    top: 38px;
+    z-index: 0;
+}
+
+.sheep-leg.left { left: 13px; }
+.sheep-leg.right { left: 23px; }
 
 /* Fence styling */
 .fence {
@@ -87,16 +224,33 @@ body {
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
     .dog {
-        border-left: 15px solid transparent;
-        border-right: 15px solid transparent;
-        border-bottom: 30px solid #8b4513;
+        width: 30px;
+        height: 30px;
     }
-    
     .sheep {
         width: 30px;
         height: 30px;
     }
-    
+    .sheep-face {
+        width: 12px;
+        height: 10px;
+        left: 9px;
+        top: 13px;
+    }
+    .sheep-ear {
+        width: 5px;
+        height: 7px;
+        top: 13px;
+    }
+    .sheep-ear.left { left: 5px; }
+    .sheep-ear.right { left: 18px; }
+    .sheep-leg {
+        width: 3px;
+        height: 7px;
+        top: 28px;
+    }
+    .sheep-leg.left { left: 10px; }
+    .sheep-leg.right { left: 17px; }
     .fence {
         width: 150px;
         height: 150px;
@@ -105,13 +259,31 @@ body {
 
 @media (max-width: 480px) {
     .dog {
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 20px solid #8b4513;
+        width: 20px;
+        height: 20px;
     }
-    
     .sheep {
         width: 20px;
         height: 20px;
     }
+    .sheep-face {
+        width: 8px;
+        height: 7px;
+        left: 6px;
+        top: 8px;
+    }
+    .sheep-ear {
+        width: 3px;
+        height: 4px;
+        top: 8px;
+    }
+    .sheep-ear.left { left: 3px; }
+    .sheep-ear.right { left: 10px; }
+    .sheep-leg {
+        width: 2px;
+        height: 4px;
+        top: 18px;
+    }
+    .sheep-leg.left { left: 5px; }
+    .sheep-leg.right { left: 10px; }
 }
